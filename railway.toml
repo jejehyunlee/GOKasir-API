@@ -1,0 +1,12 @@
+[build]
+builder = "dockerfile"
+dockerfile = "Dockerfile"
+
+[deploy]
+public = true
+numReplicas = 1
+
+[[services]]
+name = "category-api"
+port = 8080
+protocol = "tcp"
