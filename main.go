@@ -122,7 +122,7 @@ func main() {
 	productRoutes := router.Group("/products")
 	{
 		productRoutes.GET("/", handlers.GetAllProducts)
-		productRoutes.POST("/", handlers.CreateProductWithCategoryResponse)
+		productRoutes.POST("/", handlers.CreateProduct)
 		productRoutes.GET("/:id", handlers.GetProductByID)
 		productRoutes.PUT("/:id", handlers.UpdateProduct)
 		productRoutes.DELETE("/:id", handlers.DeleteProduct)
