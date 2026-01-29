@@ -7,6 +7,6 @@ public = true
 numReplicas = 1
 
 [[services]]
-name = "category-api"
+name = "Kasir-API"
 port = 8080
 protocol = "tcp"
