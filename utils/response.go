@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 // Response structure
@@ -78,4 +79,16 @@ func InternalServerError(c *gin.Context, message string, err interface{}) {
 // Unauthorized response
 func Unauthorized(c *gin.Context, message string) {
 	Error(c, http.StatusUnauthorized, message, nil)
+}
+
+func IsForeignKeyError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := err.Error()
+	// Cek pattern error foreign key PostgreSQL atau MySQL
+	return strings.Contains(errStr, "foreign key constraint") ||
+		strings.Contains(errStr, "1452") || // MySQL foreign key error code
+		strings.Contains(errStr, "23503") // PostgreSQL foreign key violation
 }
