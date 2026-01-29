@@ -64,8 +64,8 @@ func ConnectDatabase() {
 	}
 
 	// Untuk beban ~95-200 req/detik & 200 VUs:
-	sqlDB.SetMaxOpenConns(80)                  // Naikkan sesuai kapasitas DB Railway (bisa 100-500)
-	sqlDB.SetMaxIdleConns(40)                  // 50% dari MaxOpenConns
+	sqlDB.SetMaxOpenConns(120)                 // Naikkan sesuai kapasitas DB Railway (bisa 100-500)
+	sqlDB.SetMaxIdleConns(60)                  // 50% dari MaxOpenConns
 	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Lebih panjang untuk hindari turnover koneksi
 	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Oke
 	log.Println("✅ Database connected successfully!")
