@@ -63,13 +63,11 @@ func ConnectDatabase() {
 		log.Fatal("Failed to get sql.DB:", err)
 	}
 
-	// OPTIMAL POOLING SETTINGS FOR RAILWAY (PostgreSQL)
-	// Railway PostgreSQL biasanya punya 100-500 max connections
-	sqlDB.SetMaxOpenConns(30)                  // Max koneksi aktif ke database
-	sqlDB.SetMaxIdleConns(15)                  // Koneksi idle yang dipertahankan
-	sqlDB.SetConnMaxLifetime(15 * time.Minute) // Koneksi diganti setelah 30 menit
-	sqlDB.SetConnMaxIdleTime(3 * time.Minute)  // Koneksi idle maksimal 10 menit
-
+	// Untuk beban ~95-200 req/detik & 200 VUs:
+	sqlDB.SetMaxOpenConns(80)                  // Naikkan sesuai kapasitas DB Railway (bisa 100-500)
+	sqlDB.SetMaxIdleConns(40)                  // 50% dari MaxOpenConns
+	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Lebih panjang untuk hindari turnover koneksi
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Oke
 	log.Println("✅ Database connected successfully!")
 	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 25, 10)
 
