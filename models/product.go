@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Product struct {
 	ID         uint      `json:"id" gorm:"primaryKey"`
@@ -11,4 +14,11 @@ type Product struct {
 	Category   *Category `json:"category,omitempty" gorm:"foreignKey:CategoryID"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+func (p *Product) AfterFind(tx *gorm.DB) (err error) {
+	if p.Category != nil && p.Category.ID == 0 {
+		p.Category = nil
+	}
+	return
 }

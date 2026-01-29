@@ -20,6 +20,13 @@ func GetAllProducts(c *gin.Context) {
 		return
 	}
 
+	// Bersihkan category yang kosong
+	for i := range products {
+		if products[i].Category != nil && products[i].Category.ID == 0 {
+			products[i].Category = nil
+		}
+	}
+
 	utils.Success(c, "Products retrieved successfully", products)
 }
 
@@ -35,12 +42,13 @@ func GetProductByID(c *gin.Context) {
 	utils.Success(c, "Product retrieved successfully", product)
 }
 
+// handlers/product_handler.go
 func CreateProduct(c *gin.Context) {
 	var input struct {
 		Name       string  `json:"name" binding:"required,min=3,max=100"`
 		Price      float64 `json:"price" binding:"required,gt=0"`
 		Stock      int     `json:"stock" binding:"required,gte=0"`
-		CategoryID *uint   `json:"category_id" binding:"required,gt=0"`
+		CategoryID uint    `json:"category_id" binding:"required,gt=0"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -48,17 +56,21 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
+	// Cek apakah kategori ada
 	var category models.Category
 	if err := database.GetDB().First(&category, input.CategoryID).Error; err != nil {
 		utils.BadRequest(c, "Invalid category_id", nil)
 		return
 	}
 
+	// Buat pointer untuk CategoryID
+	categoryIDPtr := &input.CategoryID
+
 	product := models.Product{
 		Name:       input.Name,
 		Price:      input.Price,
 		Stock:      input.Stock,
-		CategoryID: input.CategoryID,
+		CategoryID: categoryIDPtr, // <-- SEKARANG pakai pointer
 	}
 
 	if err := database.GetDB().Create(&product).Error; err != nil {
@@ -66,9 +78,15 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
+	// Preload category untuk response
 	if err := database.GetDB().Preload("Category").First(&product, product.ID).Error; err != nil {
 		utils.InternalServerError(c, "Failed to fetch created product", err.Error())
 		return
+	}
+
+	// Bersihkan category jika NULL
+	if product.Category != nil && product.Category.ID == 0 {
+		product.Category = nil
 	}
 
 	utils.Created(c, "Product created successfully", product)
@@ -87,7 +105,7 @@ func UpdateProduct(c *gin.Context) {
 		Name       string  `json:"name" binding:"omitempty,min=3,max=100"`
 		Price      float64 `json:"price" binding:"omitempty,gt=0"`
 		Stock      *int    `json:"stock" binding:"omitempty,gte=0"`
-		CategoryID *uint   `json:"category_id" binding:"omitempty,gt=0"`
+		CategoryID *uint   `json:"category_id" binding:"omitempty,gt=0"` // <-- MASIH pointer
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -95,35 +113,47 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
+	// Update fields
+	updates := make(map[string]interface{})
+
 	if input.Name != "" {
-		product.Name = input.Name
+		updates["name"] = input.Name
 	}
 
 	if input.Price != 0 {
-		product.Price = input.Price
+		updates["price"] = input.Price
 	}
 
 	if input.Stock != nil {
-		product.Stock = *input.Stock
+		updates["stock"] = *input.Stock
 	}
 
 	if input.CategoryID != nil {
+		// Cek apakah kategori ada
 		var category models.Category
 		if err := database.GetDB().First(&category, *input.CategoryID).Error; err != nil {
 			utils.BadRequest(c, "Invalid category_id", nil)
 			return
 		}
-		product.CategoryID = input.CategoryID
+		// Simpan sebagai pointer
+		updates["category_id"] = input.CategoryID
 	}
 
-	if err := database.GetDB().Save(&product).Error; err != nil {
+	// Update product
+	if err := database.GetDB().Model(&product).Updates(updates).Error; err != nil {
 		utils.InternalServerError(c, "Failed to update product", err.Error())
 		return
 	}
 
+	// Reload dengan category
 	if err := database.GetDB().Preload("Category").First(&product, product.ID).Error; err != nil {
 		utils.InternalServerError(c, "Failed to fetch updated product", err.Error())
 		return
+	}
+
+	// Bersihkan category jika NULL
+	if product.Category != nil && product.Category.ID == 0 {
+		product.Category = nil
 	}
 
 	utils.Success(c, "Product updated successfully", product)
