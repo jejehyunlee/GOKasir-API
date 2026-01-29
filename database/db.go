@@ -13,7 +13,7 @@ var DB *gorm.DB
 
 func ConnectDatabase() {
 	// Prioritize DATABASE_URL from environment
-	databaseURL := viper.GetString("DATABASE_URL")
+	databaseURL := viper.GetString("")
 
 	if databaseURL == "" {
 		// Fallback to individual variables
