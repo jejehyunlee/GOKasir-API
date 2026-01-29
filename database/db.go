@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -20,7 +19,7 @@ var sqlDB *sql.DB // Tambahkan ini
 
 func ConnectDatabase() {
 	// Prioritize DATABASE_URL from environment
-	databaseURL := os.Getenv("")
+	databaseURL := viper.GetString("DATABASE_URL")
 
 	if databaseURL == "" {
 		// Fallback to individual variables
