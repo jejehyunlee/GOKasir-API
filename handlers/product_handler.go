@@ -40,7 +40,7 @@ func CreateProduct(c *gin.Context) {
 		Name       string  `json:"name" binding:"required,min=3,max=100"`
 		Price      float64 `json:"price" binding:"required,gt=0"`
 		Stock      int     `json:"stock" binding:"required,gte=0"`
-		CategoryID uint    `json:"category_id" binding:"required,gt=0"`
+		CategoryID *uint   `json:"category_id" binding:"required,gt=0"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -113,7 +113,7 @@ func UpdateProduct(c *gin.Context) {
 			utils.BadRequest(c, "Invalid category_id", nil)
 			return
 		}
-		product.CategoryID = *input.CategoryID
+		product.CategoryID = input.CategoryID
 	}
 
 	if err := database.GetDB().Save(&product).Error; err != nil {
