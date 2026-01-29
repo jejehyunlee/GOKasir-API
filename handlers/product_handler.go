@@ -64,13 +64,13 @@ func CreateProduct(c *gin.Context) {
 	}
 
 	// Buat pointer untuk CategoryID
-	categoryIDPtr := &input.CategoryID
+	//categoryIDPtr := &input.CategoryID
 
 	product := models.Product{
 		Name:       input.Name,
 		Price:      input.Price,
 		Stock:      input.Stock,
-		CategoryID: categoryIDPtr, // <-- SEKARANG pakai pointer
+		CategoryID: input.CategoryID, // <-- SEKARANG pakai pointer
 	}
 
 	if err := database.GetDB().Create(&product).Error; err != nil {
