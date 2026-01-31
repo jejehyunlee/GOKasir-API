@@ -4,9 +4,10 @@ import (
 	"Kasir-API/models"
 	"database/sql"
 	"fmt"
-	"golang.org/x/net/context"
 	"log"
 	"time"
+
+	"golang.org/x/net/context"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -62,13 +63,13 @@ func ConnectDatabase() {
 		log.Fatal("Failed to get sql.DB:", err)
 	}
 
-	// Optimized for 1000+ requests load testing
-	sqlDB.SetMaxOpenConns(200)                 // Increased for high concurrency
-	sqlDB.SetMaxIdleConns(100)                 // 50% of MaxOpenConns for better reuse
+	// Optimized for 100-200 VUs concurrent load testing
+	sqlDB.SetMaxOpenConns(300)                 // Increased for very high concurrency
+	sqlDB.SetMaxIdleConns(150)                 // 50% of MaxOpenConns for better reuse
 	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Prevent connection staleness
-	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Faster cleanup of idle connections
+	sqlDB.SetConnMaxIdleTime(3 * time.Minute)  // Faster cleanup of idle connections
 	log.Println("✅ Database connected successfully!")
-	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 200, 100)
+	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 300, 150)
 
 	// ==================== AUTO MIGRATE ====================
 	err = DB.AutoMigrate(&models.Category{}, &models.Product{})
