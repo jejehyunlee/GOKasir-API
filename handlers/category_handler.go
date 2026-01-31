@@ -12,7 +12,8 @@ import (
 func GetAllCategories(c *gin.Context) {
 	var categories []models.Category
 
-	if err := database.GetDB().Find(&categories).Error; err != nil {
+	// Optimized: Select only necessary fields
+	if err := database.GetDB().Select("id", "name", "description", "created_at", "updated_at").Find(&categories).Error; err != nil {
 		utils.InternalServerError(c, "Failed to fetch categories", err.Error())
 		return
 	}

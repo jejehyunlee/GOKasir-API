@@ -5,12 +5,19 @@ import (
 	"Kasir-API/models"
 	"Kasir-API/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func GetAllProducts(c *gin.Context) {
 	var products []models.Product
 
-	if err := database.GetDB().Preload("Category").Find(&products).Error; err != nil {
+	// Optimized: Select only necessary fields and preload category efficiently
+	if err := database.GetDB().
+		Select("id", "name", "price", "stock", "category_id", "created_at", "updated_at").
+		Preload("Category", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name")
+		}).
+		Find(&products).Error; err != nil {
 		utils.InternalServerError(c, "Failed to fetch products", err.Error())
 		return
 	}

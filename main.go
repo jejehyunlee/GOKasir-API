@@ -28,15 +28,15 @@ func main() {
 
 	ginMode := viper.GetString("GIN_MODE")
 	if ginMode == "" {
-		ginMode = "debug" // default
+		ginMode = "release" // default to release mode for better performance
 	}
 
 	gin.SetMode(ginMode)
 
 	if ginMode == "release" {
-		log.Println("PRODUCTION mode activated")
+		log.Println("🚀 PRODUCTION mode activated - optimized for performance")
 	} else {
-		log.Println("DEBUG mode activated")
+		log.Println("🔧 DEBUG mode activated")
 	}
 
 	// Initialize database

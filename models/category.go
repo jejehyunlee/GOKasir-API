@@ -6,7 +6,7 @@ import (
 
 type Category struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`
-	Name        string    `json:"name" gorm:"size:100;not null"`
+	Name        string    `json:"name" gorm:"size:100;not null;uniqueIndex"` // Added uniqueIndex for faster lookups
 	Description string    `json:"description" gorm:"type:text"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

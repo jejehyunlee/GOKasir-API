@@ -46,10 +46,9 @@ func ConnectDatabase() {
 
 	// ==================== GORM CONFIGURATION ====================
 	DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{
-		// Logger: logger.Default.LogMode(logger.Silent), // Production
-		Logger:                 logger.Default.LogMode(logger.Info), // Development
-		PrepareStmt:            true,                                // Enable prepared statement cache
-		SkipDefaultTransaction: true,                                // Improve performance
+		Logger:                 logger.Default.LogMode(logger.Silent), // Silent mode for production performance
+		PrepareStmt:            true,                                  // Enable prepared statement cache
+		SkipDefaultTransaction: true,                                  // Improve performance by skipping default transactions
 	})
 
 	if err != nil {
@@ -63,13 +62,13 @@ func ConnectDatabase() {
 		log.Fatal("Failed to get sql.DB:", err)
 	}
 
-	// Untuk beban ~95-200 req/detik & 200 VUs:
-	sqlDB.SetMaxOpenConns(100)                 // Naikkan sesuai kapasitas DB Railway (bisa 100-500)
-	sqlDB.SetMaxIdleConns(50)                  // 50% dari MaxOpenConns
-	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Lebih panjang untuk hindari turnover koneksi
-	sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Oke
+	// Optimized for 1000+ requests load testing
+	sqlDB.SetMaxOpenConns(200)                 // Increased for high concurrency
+	sqlDB.SetMaxIdleConns(100)                 // 50% of MaxOpenConns for better reuse
+	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Prevent connection staleness
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Faster cleanup of idle connections
 	log.Println("✅ Database connected successfully!")
-	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 25, 10)
+	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 200, 100)
 
 	// ==================== AUTO MIGRATE ====================
 	err = DB.AutoMigrate(&models.Category{}, &models.Product{})
