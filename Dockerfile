@@ -1,5 +1,5 @@
 # Single stage build - lebih reliable untuk Railway
-FROM golang:1.25-alpine
+FROM golang:1.23-alpine
 
 WORKDIR /app
 
