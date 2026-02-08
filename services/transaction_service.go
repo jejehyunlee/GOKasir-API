@@ -60,3 +60,7 @@ func (s *TransactionService) Checkout(request models.CheckoutRequest) (*models.T
 func (s *TransactionService) GetAll() ([]models.Transaction, error) {
 	return s.repo.GetAll()
 }
+
+func (s *TransactionService) GetReport(startDate, endDate string) (models.ReportResponse, error) {
+	return s.repo.GetReport(startDate, endDate)
+}

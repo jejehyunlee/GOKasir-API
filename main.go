@@ -101,23 +101,27 @@ func main() {
 	// Root route
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Category API is running",
+			"message": "GO-Kasir API is running",
 			"version": "1.0.0",
 			"endpoints": map[string]string{
-				"GET /":                  "API info",
-				"GET /health":            "Basic health check",
-				"GET /health/db":         "Database health check",
-				"GET /metrics":           "Metrics endpoint",
-				"GET /categories":        "Get all categories",
-				"POST /categories":       "Create new category",
-				"GET /categories/:id":    "Get category by ID",
-				"PUT /categories/:id":    "Update category",
-				"DELETE /categories/:id": "Delete category",
-				"GET /products":          "Get all products",
-				"POST /products":         "Create new product",
-				"GET /products/:id":      "Get product by ID",
-				"PUT /products/:id":      "Update product",
-				"DELETE /products/:id":   "Delete product",
+				"GET /":                       "API info",
+				"GET /health":                 "Basic health check",
+				"GET /health/db":              "Database health check",
+				"GET /metrics":                "Metrics endpoint",
+				"GET /categories":             "Get all categories",
+				"POST /categories":            "Create new category",
+				"GET /categories/:id":         "Get category by ID",
+				"PUT /categories/:id":         "Update category",
+				"DELETE /categories/:id":      "Delete category",
+				"GET /products":               "Get all products",
+				"POST /products":              "Create new product",
+				"GET /products/:id":           "Get product by ID",
+				"PUT /products/:id":           "Update product",
+				"DELETE /products/:id":        "Delete product",
+				"GET /transactions":           "Get all transactions",
+				"POST /transactions/checkout": "Process checkout",
+				"GET /report/hari-ini":        "Get today's sales report",
+				"GET /report":                 "Get sales report with date filter",
 			},
 		})
 	})
@@ -145,6 +149,12 @@ func main() {
 	{
 		transactionRoutes.GET("/", transactionHandler.GetAll)
 		transactionRoutes.POST("/checkout", transactionHandler.Checkout)
+	}
+
+	reportRoutes := router.Group("/report")
+	{
+		reportRoutes.GET("/hari-ini", transactionHandler.GetReport)
+		reportRoutes.GET("/", transactionHandler.GetReport)
 	}
 
 	// Start server

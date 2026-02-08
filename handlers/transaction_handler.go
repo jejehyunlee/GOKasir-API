@@ -4,6 +4,7 @@ import (
 	"Kasir-API/models"
 	"Kasir-API/services"
 	"Kasir-API/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,4 +41,25 @@ func (h *TransactionHandler) GetAll(c *gin.Context) {
 	}
 
 	utils.Success(c, "Transactions retrieved successfully", transactions)
+}
+
+func (h *TransactionHandler) GetReport(c *gin.Context) {
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	// Default to today if not provided
+	if startDate == "" {
+		startDate = time.Now().Format("2006-01-02")
+	}
+	if endDate == "" {
+		endDate = time.Now().Format("2006-01-02")
+	}
+
+	report, err := h.service.GetReport(startDate, endDate)
+	if err != nil {
+		utils.InternalServerError(c, "Failed to generate report", err.Error())
+		return
+	}
+
+	utils.Success(c, "Report generated successfully", report)
 }
