@@ -3,21 +3,26 @@ package handlers
 import (
 	"Kasir-API/database"
 	"Kasir-API/models"
+	"Kasir-API/services"
 	"Kasir-API/utils"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func GetAllProducts(c *gin.Context) {
-	var products []models.Product
+type ProductHandler struct {
+	service *services.ProductService
+}
 
-	// Optimized: Select only necessary fields and preload category efficiently
-	if err := database.GetDB().
-		Select("id", "name", "price", "stock", "category_id", "created_at", "updated_at").
-		Preload("Category", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name")
-		}).
-		Find(&products).Error; err != nil {
+func NewProductHandler(service *services.ProductService) *ProductHandler {
+	return &ProductHandler{service: service}
+}
+
+func (h *ProductHandler) GetAll(c *gin.Context) {
+	// Ambil data 'name' dari query parameter
+	name := c.Query("name")
+
+	products, err := h.service.GetAll(name)
+	if err != nil {
 		utils.InternalServerError(c, "Failed to fetch products", err.Error())
 		return
 	}
@@ -25,13 +30,6 @@ func GetAllProducts(c *gin.Context) {
 	if len(products) == 0 {
 		utils.Success(c, "No products found", []interface{}{})
 		return
-	}
-
-	// Bersihkan category yang kosong
-	for i := range products {
-		if products[i].Category != nil && products[i].Category.ID == 0 {
-			products[i].Category = nil
-		}
 	}
 
 	utils.Success(c, "Products retrieved successfully", products)

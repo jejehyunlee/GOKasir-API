@@ -5,11 +5,14 @@ import (
 	"Kasir-API/database"
 	"Kasir-API/handlers"
 	"Kasir-API/middleware"
+	"Kasir-API/repositories"
+	"Kasir-API/services"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"log"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -41,6 +44,11 @@ func main() {
 
 	// Initialize database
 	database.ConnectDatabase()
+
+	// Initialize Product Dependencies
+	productRepo := repositories.NewProductRepository(database.GetDB())
+	productService := services.NewProductService(productRepo)
+	productHandler := handlers.NewProductHandler(productService)
 
 	// Create router
 	router := gin.New()
@@ -121,7 +129,7 @@ func main() {
 
 	productRoutes := router.Group("/products")
 	{
-		productRoutes.GET("/", handlers.GetAllProducts)
+		productRoutes.GET("/", productHandler.GetAll)
 		productRoutes.POST("/", handlers.CreateProduct)
 		productRoutes.GET("/:id", handlers.GetProductByID)
 		productRoutes.PUT("/:id", handlers.UpdateProduct)
