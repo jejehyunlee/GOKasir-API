@@ -50,6 +50,11 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
+	// Initialize Transaction Dependencies
+	transactionRepo := repositories.NewTransactionRepository(database.GetDB())
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
 	// Create router
 	router := gin.New()
 
@@ -134,6 +139,12 @@ func main() {
 		productRoutes.GET("/:id", handlers.GetProductByID)
 		productRoutes.PUT("/:id", handlers.UpdateProduct)
 		productRoutes.DELETE("/:id", handlers.DeleteProduct)
+	}
+
+	transactionRoutes := router.Group("/transactions")
+	{
+		transactionRoutes.GET("/", transactionHandler.GetAll)
+		transactionRoutes.POST("/checkout", transactionHandler.Checkout)
 	}
 
 	// Start server

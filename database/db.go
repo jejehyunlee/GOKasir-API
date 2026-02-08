@@ -72,7 +72,7 @@ func ConnectDatabase() {
 	log.Printf("📊 Connection Pool Stats: MaxOpen=%d, MaxIdle=%d", 300, 150)
 
 	// ==================== AUTO MIGRATE ====================
-	err = DB.AutoMigrate(&models.Category{}, &models.Product{})
+	err = DB.AutoMigrate(&models.Category{}, &models.Product{}, &models.Transaction{}, &models.TransactionDetail{})
 	if err != nil {
 		log.Printf("⚠️ Warning: AutoMigrate failed: %v", err)
 	} else {
